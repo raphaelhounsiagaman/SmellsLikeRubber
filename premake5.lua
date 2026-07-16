@@ -3,7 +3,7 @@ workspace "SmellsLikeRubber"
     configurations { "Debug", "Release", "Dist" }
     startproject "SmellsLikeRubber"
 
-include "vendor/SlateEngine/Build-SlateEngine.lua"
+include "vendor/SlateEngine/Slate/Build-SlateEngine.lua"
 
 include "SmellsLikeRubber/Build-SmellsLikeRubber.lua"
 
