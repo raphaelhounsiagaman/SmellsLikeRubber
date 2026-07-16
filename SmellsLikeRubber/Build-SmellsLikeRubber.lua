@@ -21,7 +21,7 @@ project "SmellsLikeRubber"
   {
     "src",
 
-	  "../vendor/SlateEngine/src",
+	  "../vendor/SlateEngine/Slate/src",
   }
 
   libdirs

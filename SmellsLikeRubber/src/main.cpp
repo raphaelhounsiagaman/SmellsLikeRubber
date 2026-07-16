@@ -1,10 +1,8 @@
-#include <iostream>
+#include "Slate/Slate.h"
 
 int main()
 {
+	Slate::Application app;
 
-  std::cin.get();
-
-
-  return 0;
+	app.Run();
 }
