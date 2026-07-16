@@ -1,18 +1,10 @@
-workspace "SmellsLikeRubber"
-
-    architecture "x64"
-    configurations { "Debug", "Release", "Dist" }
-    startproject "SmellsLikeRubber"
-
-include "vendor/SlateEngine/Build-SlateEngine.lua"
-
 project "SmellsLikeRubber"
   kind "WindowedApp"
   language "C++"
   cppdialect "C++23"
 
-  targetdir ("bin/%{cfg.buildcfg}")
-  objdir ("bin/Intermediates/%{cfg.buildcfg}")
+  targetdir ("../bin/%{cfg.buildcfg}")
+  objdir ("../bin/Intermediates/%{cfg.buildcfg}")
 
   files 
   {
@@ -29,7 +21,7 @@ project "SmellsLikeRubber"
   {
     "src",
 
-	  "vendor/SlateEngine/src",
+	  "../vendor/SlateEngine/src",
   }
 
   libdirs
