@@ -1,0 +1,3 @@
+[submodule "vendor/SlateEngine"]
+	path = vendor/SlateEngine
+	url = https://github.com/raphaelhounsiagaman/SlateEngine.git
