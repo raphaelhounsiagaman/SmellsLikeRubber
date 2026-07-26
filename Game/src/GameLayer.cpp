@@ -27,8 +27,8 @@ GameLayer::GameLayer()
 	updateRateStyle.VerticalAlignment =
 		Slate::VerticalTextAlignment::Center;
 
-	m_UpdatesPerSecondLabel = &m_HudCanvas.AddLabel(
-		L"UPS: --",
+	m_PerformanceLabel = &m_HudCanvas.AddLabel(
+		L"UPS: -- | FPS: --",
 		{},
 		updateRateStyle
 	);
@@ -51,18 +51,18 @@ void GameLayer::OnEvent(Slate::Event& event)
 
 void GameLayer::OnUpdate(float deltaTimeSeconds)
 {
-	m_UpdateSampleElapsedSeconds += deltaTimeSeconds;
-	++m_UpdateSampleCycleCount;
-	if (m_UpdateSampleElapsedSeconds >= 0.25f)
+	const Slate::PerformanceStatistics& performance =
+		m_Application.GetPerformanceStatistics();
+	if (performance.SampleNumber != m_LastPerformanceSample)
 	{
-		const float updatesPerSecond =
-			static_cast<float>(m_UpdateSampleCycleCount) /
-			m_UpdateSampleElapsedSeconds;
-		m_UpdatesPerSecondLabel->SetText(
-			std::format(L"UPS: {:.0f}", updatesPerSecond)
+		m_PerformanceLabel->SetText(
+			std::format(
+				L"UPS: {:.0f} | FPS: {:.0f}",
+				performance.UpdatesPerSecond,
+				performance.FramesPerSecond
+			)
 		);
-		m_UpdateSampleElapsedSeconds = 0.0f;
-		m_UpdateSampleCycleCount = 0;
+		m_LastPerformanceSample = performance.SampleNumber;
 	}
 
 	const auto isKeyDown = [](Slate::KeyCode primary, Slate::KeyCode alternate)
@@ -119,7 +119,7 @@ void GameLayer::UpdateHudLayout()
 		static_cast<float>(
 			m_Application.GetWindow().GetClientWidthPixels()
 		);
-	m_UpdatesPerSecondLabel->SetBounds(
-		{ viewportWidthPixels - 176.0f, 12.0f, 160.0f, 32.0f }
+	m_PerformanceLabel->SetBounds(
+		{ viewportWidthPixels - 296.0f, 12.0f, 280.0f, 32.0f }
 	);
 }

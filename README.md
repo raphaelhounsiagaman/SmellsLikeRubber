@@ -16,7 +16,8 @@ which lives in this repository as a Git submodule.
 - Chase camera with right-mouse orbit and wheel zoom
 - Main menu with a queued transition into the game layer
 - Canvas UI with labels, buttons, images, text, and mouse interaction
-- Uncapped update/render loop by default, with an updates-per-second HUD
+- Independently scheduled update and render stages, both uncapped by default
+- Engine-measured updates-per-second and frames-per-second HUD
 - Keyboard, mouse, focus, and resize events
 - Resizable game window and renderer resources
 - Consistent SI gameplay units
@@ -100,10 +101,17 @@ Unit-bearing variables and settings include the unit in their names. This keeps
 tuning values readable without identity conversion helpers or hidden scale
 factors.
 
-The top-right `UPS` label reports completed update cycles per second, not a
-display refresh rate. VSync is disabled by default so the counter can expose
-the current update/render throughput. It remains available through
-`Renderer::SetVSyncEnabled(true)` when synchronized presentation is wanted.
+The top-right HUD reports completed update cycles as `UPS` and completed
+presentations as `FPS`. SlateEngine measures both stages against wall-clock
+time rather than estimating one value from the other.
+
+Updates and rendering are uncapped by default. On supported Windows systems,
+SlateEngine enables DXGI tearing for immediate presentation; unsupported
+systems fall back safely to standard presentation. VSync remains available
+through `Renderer::SetVSyncEnabled(true)`.
+
+`ApplicationLoopSettings` can independently limit either stage when a project
+needs a specific simulation or rendering rate. A limit of zero means uncapped.
 
 ## Architecture
 
