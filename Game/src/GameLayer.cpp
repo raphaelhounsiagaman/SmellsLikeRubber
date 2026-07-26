@@ -1,9 +1,11 @@
-#include "StartLayer.h"
+#include "GameLayer.h"
 
 #include "Core/MetricUnits.h"
 #include "Meshes/BoxMesh.h"
 
-StartLayer::StartLayer()
+#include <format>
+
+GameLayer::GameLayer()
 	: m_DebugDrivingCourse(m_Renderer)
 {
 	// CreateBoxMesh is a one-metre cube. Scale therefore represents the car's
@@ -20,16 +22,51 @@ StartLayer::StartLayer()
 			Metric::Metres(4.2f)
 		};
 
-	// Camera clipping distances are world-space metres.
 	m_Camera.NearPlaneMetres = Metric::Metres(0.1f);
 	m_Camera.FarPlaneMetres = Metric::Metres(500.0f);
+
+	Slate::TextStyle fpsStyle;
+	fpsStyle.FontSizePixels = 18.0f;
+	fpsStyle.IsBold = true;
+	fpsStyle.HorizontalAlignment =
+		Slate::HorizontalTextAlignment::Right;
+	fpsStyle.VerticalAlignment =
+		Slate::VerticalTextAlignment::Center;
+
+	m_FpsLabel = &m_HudCanvas.AddLabel(
+		L"FPS: --",
+		{},
+		fpsStyle
+	);
 }
 
-void StartLayer::OnEvent(Slate::Event&)
+void GameLayer::OnEvent(Slate::Event&)
 {}
 
-void StartLayer::OnUpdate(float deltaTimeSeconds)
+void GameLayer::OnUpdate(float deltaTimeSeconds)
 {
+	const float viewportWidthPixels =
+		static_cast<float>(
+			m_Application.GetWindow().GetClientWidthPixels()
+		);
+	m_FpsLabel->SetBounds(
+		{ viewportWidthPixels - 176.0f, 12.0f, 160.0f, 32.0f }
+	);
+
+	m_FpsSampleTimeSeconds += deltaTimeSeconds;
+	++m_FpsSampleFrameCount;
+	if (m_FpsSampleTimeSeconds >= 0.25f)
+	{
+		const float framesPerSecond =
+			static_cast<float>(m_FpsSampleFrameCount) /
+			m_FpsSampleTimeSeconds;
+		m_FpsLabel->SetText(
+			std::format(L"FPS: {:.0f}", framesPerSecond)
+		);
+		m_FpsSampleTimeSeconds = 0.0f;
+		m_FpsSampleFrameCount = 0;
+	}
+
 	const auto isKeyDown = [](Slate::KeyCode primary, Slate::KeyCode alternate)
 	{
 		return Slate::Input::IsKeyDown(primary) ||
@@ -66,7 +103,7 @@ void StartLayer::OnUpdate(float deltaTimeSeconds)
 	);
 }
 
-void StartLayer::OnRender()
+void GameLayer::OnRender()
 {
 	m_Renderer.SetCamera3D(m_Camera);
 	m_DebugDrivingCourse.Render(m_Renderer);
@@ -75,4 +112,5 @@ void StartLayer::OnRender()
 		m_Car.Material,
 		m_Car.Transform
 	);
+	m_HudCanvas.Render(m_Renderer);
 }

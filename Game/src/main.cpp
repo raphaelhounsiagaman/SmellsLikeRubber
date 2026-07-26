@@ -1,8 +1,10 @@
 
-#include "StartLayer.h"
+#include "MainMenuLayer.h"
 
 #include "Slate/EntryPoint.h"
 #include "Slate/Slate.h"
+
+#include <memory>
 
 class SmellsLikeRubberApplication final : public Slate::Application
 {
@@ -12,29 +14,20 @@ public:
 	{
 		m_Renderer.SetClearColor(m_ClearColor);
 
-		PushLayer<StartLayer>();
+		PushLayer<MainMenuLayer>();
 	}
 
-	~SmellsLikeRubberApplication()
-	{
-
-	}
-	
 private:
-	
-	Slate::Color m_ClearColor{ 60, 0, 160, 255} ;
-
-
-
-
+	Slate::Color m_ClearColor{ 60, 0, 160, 255 };
 };
 
-Slate::Application* Slate::CreateApplication(Slate::WindowInformation windowInfo)
+std::unique_ptr<Slate::Application> Slate::CreateApplication(
+	Slate::WindowInformation windowInfo)
 {
 	windowInfo.Name = L"Smells Like Rubber";
-	windowInfo.Width = 1280;
-	windowInfo.Height = 720;
+	windowInfo.WidthPixels = 1280;
+	windowInfo.HeightPixels = 720;
 
-	return new SmellsLikeRubberApplication(windowInfo);
+	return std::make_unique<SmellsLikeRubberApplication>(windowInfo);
 }
 
