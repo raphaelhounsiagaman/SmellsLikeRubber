@@ -72,6 +72,18 @@ void StartLayer::OnEvent(Slate::Event& event)
 void StartLayer::OnUpdate(float ts)
 {
 
+	// Radians per second.
+	constexpr float spinSpeed = 0.5f;
+
+	const Slate::Quaternion rotationThisFrame =
+		Slate::Quaternion::FromAxisAngle(
+			{ 0.0f, 1.0f, 2.0f },
+			spinSpeed * ts
+		);
+	
+	m_Box.Transform.Rotation =
+		(rotationThisFrame * m_Box.Transform.Rotation).Normalized();
+
 }
 
 
