@@ -7,4 +7,5 @@ struct GameObject3D
 {
 	Slate::Transform3D Transform;
 	Slate::Mesh3DHandle Mesh;
+	Slate::MaterialHandle Material;
 };

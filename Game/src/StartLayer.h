@@ -10,7 +10,7 @@ public:
 	StartLayer();
 	virtual ~StartLayer() = default;
 	virtual void OnEvent(Slate::Event& event) override;
-	virtual void OnUpdate(float ts) override {};
+	virtual void OnUpdate(float ts) override;
 	virtual void OnRender() override;
 
 private:
@@ -18,7 +18,7 @@ private:
 	Slate::Application& m_Application = Slate::Application::Get();
 	Slate::Renderer& m_Renderer = m_Application.GetRenderer();
 
-	//Slate::Camera3D Camera;
+	Slate::Camera3D m_Camera;
 
 	GameObject3D m_Box;
 
