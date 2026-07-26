@@ -21,7 +21,7 @@ project "SmellsLikeRubber"
   {
     "src",
 
-	  "../vendor/SlateEngine/Slate/src",
+	  "../vendor/SlateEngine/Slate/include",
   }
 
   libdirs
@@ -31,11 +31,12 @@ project "SmellsLikeRubber"
 
   links
   {
-    "SlateEngine"
+    "SlateEngine",
   }
 
   filter "system:windows"
     systemversion "latest"
+    buildoptions { "/Zc:preprocessor" }
 
   filter "configurations:Debug"
     defines "SLR_DEBUG"

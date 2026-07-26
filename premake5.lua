@@ -5,5 +5,5 @@ workspace "SmellsLikeRubber"
 
 include "vendor/SlateEngine/Slate/Build-SlateEngine.lua"
 
-include "SmellsLikeRubber/Build-SmellsLikeRubber.lua"
+include "Game/Build-SmellsLikeRubber.lua"
 
