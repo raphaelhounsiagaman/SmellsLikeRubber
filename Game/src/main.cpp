@@ -13,7 +13,6 @@ public:
 		m_Renderer.SetClearColor(m_ClearColor);
 
 		PushLayer<StartLayer>();
-		PushLayer<StartLayer>();
 	}
 
 	~SmellsLikeRubberApplication()

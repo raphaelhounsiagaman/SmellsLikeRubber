@@ -22,4 +22,7 @@ private:
 
 	GameObject3D m_Box;
 
+	float m_CameraYaw = 0.0f;
+	float m_CameraPitch = 0.0f;
+	float m_CameraMoveSpeed = 4.0f;
 };
