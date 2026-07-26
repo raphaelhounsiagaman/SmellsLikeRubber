@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Gameplay/ArcadeCarController.h"
+#include "Gameplay/ChaseCameraController.h"
 #include "GameObject3D.h"
+#include "World/DebugDrivingCourse.h"
 
 #include "Slate/Slate.h"
 
@@ -10,7 +13,7 @@ public:
 	StartLayer();
 	virtual ~StartLayer() = default;
 	virtual void OnEvent(Slate::Event& event) override;
-	virtual void OnUpdate(float ts) override;
+	virtual void OnUpdate(float deltaTimeSeconds) override;
 	virtual void OnRender() override;
 
 private:
@@ -20,9 +23,8 @@ private:
 
 	Slate::Camera3D m_Camera;
 
-	GameObject3D m_Box;
-
-	float m_CameraYaw = 0.0f;
-	float m_CameraPitch = 0.0f;
-	float m_CameraMoveSpeed = 4.0f;
+	GameObject3D m_Car;
+	ArcadeCarController m_CarController;
+	ChaseCameraController m_ChaseCameraController;
+	DebugDrivingCourse m_DebugDrivingCourse;
 };

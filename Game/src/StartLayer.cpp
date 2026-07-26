@@ -1,143 +1,78 @@
 #include "StartLayer.h"
 
+#include "Core/MetricUnits.h"
 #include "Meshes/BoxMesh.h"
 
-#include <algorithm>
-#include <cmath>
-
 StartLayer::StartLayer()
+	: m_DebugDrivingCourse(m_Renderer)
 {
-	m_Box.Mesh = CreateBoxMesh(m_Renderer);
-	m_Box.Material = m_Renderer.CreateMaterial(Slate::Color(230, 90, 25));
+	// CreateBoxMesh is a one-metre cube. Scale therefore represents the car's
+	// real dimensions: 1.8 m wide, 1.4 m tall, and 4.2 m long.
+	m_Car.Mesh = CreateBoxMesh(m_Renderer);
+	m_Car.Material =
+		m_Renderer.CreateMaterial(Slate::Color(230, 90, 25));
+	m_Car.Transform.Position =
+		{ 0.0f, Metric::Metres(0.7f), 0.0f };
+	m_Car.Transform.Scale =
+		{
+			Metric::Metres(1.8f),
+			Metric::Metres(1.4f),
+			Metric::Metres(4.2f)
+		};
 
-	m_Box.Transform.Rotation =
-		Slate::Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
-
-	m_Camera.Transform.Position = { 0.0f, 0.0f, -3.0f };
+	// Camera clipping distances are world-space metres.
+	m_Camera.NearPlaneMetres = Metric::Metres(0.1f);
+	m_Camera.FarPlaneMetres = Metric::Metres(500.0f);
 }
 
-void StartLayer::OnEvent(Slate::Event& event)
+void StartLayer::OnEvent(Slate::Event&)
+{}
+
+void StartLayer::OnUpdate(float deltaTimeSeconds)
 {
-
-}
-
-void StartLayer::OnUpdate(float ts)
-{
-	constexpr float mouseSensitivity = 0.0025f;
-	constexpr float maximumPitch = 1.55334f; // 89 degrees.
-
-	if (Slate::Input::IsMouseButtonDown(Slate::MouseButton::Right))
+	const auto isKeyDown = [](Slate::KeyCode primary, Slate::KeyCode alternate)
 	{
-		const Slate::Vector2i mouseDelta = Slate::Input::GetMouseDelta();
-		m_CameraYaw += static_cast<float>(mouseDelta.X) * mouseSensitivity;
-		m_CameraPitch -= static_cast<float>(mouseDelta.Y) * mouseSensitivity;
-		m_CameraPitch = std::clamp(
-			m_CameraPitch,
-			-maximumPitch,
-			maximumPitch
-		);
-	}
-
-	const float cosPitch = std::cos(m_CameraPitch);
-	const Slate::Vector3f forward
-	{
-		std::sin(m_CameraYaw) * cosPitch,
-		std::sin(m_CameraPitch),
-		std::cos(m_CameraYaw) * cosPitch
-	};
-	const Slate::Vector3f right
-	{
-		std::cos(m_CameraYaw),
-		0.0f,
-		-std::sin(m_CameraYaw)
+		return Slate::Input::IsKeyDown(primary) ||
+			Slate::Input::IsKeyDown(alternate);
 	};
 
-	Slate::Vector3f movement{};
-	if (Slate::Input::IsKeyDown(Slate::KeyCode::W) ||
-		Slate::Input::IsKeyDown(Slate::KeyCode::Up))
-	{
-		movement = movement + forward;
-	}
-	if (Slate::Input::IsKeyDown(Slate::KeyCode::S) ||
-		Slate::Input::IsKeyDown(Slate::KeyCode::Down))
-	{
-		movement = movement - forward;
-	}
-	if (Slate::Input::IsKeyDown(Slate::KeyCode::D) ||
-		Slate::Input::IsKeyDown(Slate::KeyCode::Right))
-	{
-		movement = movement + right;
-	}
-	if (Slate::Input::IsKeyDown(Slate::KeyCode::A) ||
-		Slate::Input::IsKeyDown(Slate::KeyCode::Left))
-	{
-		movement = movement - right;
-	}
-	if (Slate::Input::IsKeyDown(Slate::KeyCode::E))
-	{
-		movement.Y += 1.0f;
-	}
-	if (Slate::Input::IsKeyDown(Slate::KeyCode::Q))
-	{
-		movement.Y -= 1.0f;
-	}
+	ArcadeCarInput carInput;
+	carInput.Throttle =
+		(isKeyDown(Slate::KeyCode::W, Slate::KeyCode::Up) ? 1.0f : 0.0f) -
+		(isKeyDown(Slate::KeyCode::S, Slate::KeyCode::Down) ? 1.0f : 0.0f);
+	carInput.Steering =
+		(isKeyDown(Slate::KeyCode::D, Slate::KeyCode::Right) ? 1.0f : 0.0f) -
+		(isKeyDown(Slate::KeyCode::A, Slate::KeyCode::Left) ? 1.0f : 0.0f);
 
-	const float movementLengthSquared =
-		movement.X * movement.X +
-		movement.Y * movement.Y +
-		movement.Z * movement.Z;
-	if (movementLengthSquared > 0.0f)
-	{
-		const float speedMultiplier =
-			Slate::Input::IsKeyDown(Slate::KeyCode::Shift) ? 2.5f : 1.0f;
-		const float movementScale =
-			m_CameraMoveSpeed * speedMultiplier * ts /
-			std::sqrt(movementLengthSquared);
-
-		m_Camera.Transform.Position =
-			m_Camera.Transform.Position + movement * movementScale;
-	}
-
-	const float scroll = Slate::Input::GetScrollDelta().Y;
-	m_CameraMoveSpeed = std::clamp(
-		m_CameraMoveSpeed + scroll,
-		1.0f,
-		25.0f
+	m_CarController.Update(
+		m_Car.Transform,
+		carInput,
+		deltaTimeSeconds
 	);
 
-	const Slate::Quaternion pitchRotation =
-		Slate::Quaternion::FromAxisAngle(
-			{ 1.0f, 0.0f, 0.0f },
-			-m_CameraPitch
-		);
-	const Slate::Quaternion yawRotation =
-		Slate::Quaternion::FromAxisAngle(
-			{ 0.0f, 1.0f, 0.0f },
-			m_CameraYaw
-		);
-	m_Camera.Transform.Rotation =
-		(pitchRotation * yawRotation).Normalized();
+	ChaseCameraInput cameraInput;
+	if (Slate::Input::IsMouseButtonDown(Slate::MouseButton::Right))
+	{
+		cameraInput.OrbitDeltaPixels = Slate::Input::GetMouseDelta();
+	}
+	cameraInput.ZoomWheelSteps = Slate::Input::GetScrollDelta().Y;
 
-	// Radians per second.
-	constexpr float spinSpeed = 0.5f;
-
-	const Slate::Quaternion rotationThisFrame =
-		Slate::Quaternion::FromAxisAngle(
-			{ 0.0f, 1.0f, 0.0f },
-			spinSpeed * ts
-		);
-	
-	m_Box.Transform.Rotation =
-		(rotationThisFrame * m_Box.Transform.Rotation).Normalized();
+	m_ChaseCameraController.Update(
+		m_Camera,
+		m_Car.Transform.Position,
+		m_CarController.GetHeadingRadians(),
+		cameraInput,
+		deltaTimeSeconds
+	);
 }
-
 
 void StartLayer::OnRender()
 {
 	m_Renderer.SetCamera3D(m_Camera);
+	m_DebugDrivingCourse.Render(m_Renderer);
 	m_Renderer.DrawMesh3D(
-		m_Box.Mesh,
-		m_Box.Material,
-		m_Box.Transform
+		m_Car.Mesh,
+		m_Car.Material,
+		m_Car.Transform
 	);
 }
