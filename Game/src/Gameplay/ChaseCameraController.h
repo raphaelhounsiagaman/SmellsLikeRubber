@@ -1,18 +1,17 @@
 #pragma once
 
-#include "Core/MetricUnits.h"
 #include "Slate/Graphics/Camera3D.h"
 
 struct ChaseCameraSettings
 {
-	float TargetHeightMetres = Metric::Metres(1.0f);
-	float FollowDistanceMetres = Metric::Metres(8.0f);
-	float MinimumDistanceMetres = Metric::Metres(4.0f);
-	float MaximumDistanceMetres = Metric::Metres(16.0f);
-	float InitialPitchRadians = Metric::Radians(-0.35f);
+	float TargetHeightMetres = 1.0f;
+	float FollowDistanceMetres = 8.0f;
+	float MinimumDistanceMetres = 4.0f;
+	float MaximumDistanceMetres = 16.0f;
+	float InitialPitchRadians = -0.35f;
 	float PositionResponsePerSecond = 7.0f;
 	float OrbitSensitivityRadiansPerPixel = 0.0025f;
-	float ZoomMetresPerWheelStep = Metric::Metres(0.75f);
+	float ZoomMetresPerWheelStep = 0.75f;
 };
 
 struct ChaseCameraInput

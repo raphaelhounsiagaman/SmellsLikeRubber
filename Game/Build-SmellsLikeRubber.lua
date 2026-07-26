@@ -24,11 +24,6 @@ project "SmellsLikeRubber"
 	  "../vendor/SlateEngine/Slate/include",
   }
 
-  libdirs
-  {
-    
-  }
-
   links
   {
     "SlateEngine",

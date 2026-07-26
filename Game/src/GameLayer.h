@@ -17,17 +17,20 @@ public:
 	void OnRender() override;
 
 private:
+	void UpdateHudLayout();
+
 	Slate::Application& m_Application = Slate::Application::Get();
 	Slate::Renderer& m_Renderer = m_Application.GetRenderer();
 
 	Slate::Camera3D m_Camera;
+	Slate::Mesh3DHandle m_BoxMesh;
 	GameObject3D m_Car;
 	ArcadeCarController m_CarController;
 	ChaseCameraController m_ChaseCameraController;
 	DebugDrivingCourse m_DebugDrivingCourse;
 
 	Slate::UICanvas m_HudCanvas;
-	Slate::Label* m_FpsLabel = nullptr;
-	float m_FpsSampleTimeSeconds = 0.0f;
-	unsigned int m_FpsSampleFrameCount = 0;
+	Slate::Label* m_UpdatesPerSecondLabel = nullptr;
+	float m_UpdateSampleElapsedSeconds = 0.0f;
+	unsigned int m_UpdateSampleCycleCount = 0;
 };

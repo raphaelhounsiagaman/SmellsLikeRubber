@@ -45,11 +45,15 @@ MainMenuLayer::MainMenuLayer()
 void MainMenuLayer::OnEvent(Slate::Event& event)
 {
 	m_Canvas.OnEvent(event);
-}
 
-void MainMenuLayer::OnUpdate(float)
-{
-	UpdateLayout();
+	Slate::EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<Slate::WindowResizeEvent>(
+		[this](Slate::WindowResizeEvent&)
+		{
+			UpdateLayout();
+			return false;
+		}
+	);
 }
 
 void MainMenuLayer::OnRender()

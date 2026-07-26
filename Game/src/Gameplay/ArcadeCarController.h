@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/MetricUnits.h"
 #include "Slate/Math/Transform.h"
 
 struct ArcadeCarInput
@@ -12,19 +11,19 @@ struct ArcadeCarInput
 struct ArcadeCarSettings
 {
 	float MaximumForwardSpeedMetresPerSecond =
-		Metric::KilometresPerHourToMetresPerSecond(72.0f);
+		20.0f;
 	float MaximumReverseSpeedMetresPerSecond =
-		Metric::MetresPerSecond(5.0f);
+		5.0f;
 	float ForwardAccelerationMetresPerSecondSquared =
-		Metric::MetresPerSecondSquared(6.0f);
+		6.0f;
 	float ReverseAccelerationMetresPerSecondSquared =
-		Metric::MetresPerSecondSquared(4.0f);
+		4.0f;
 	float BrakingDecelerationMetresPerSecondSquared =
-		Metric::MetresPerSecondSquared(12.0f);
+		12.0f;
 	float CoastingDragMetresPerSecondSquared =
-		Metric::MetresPerSecondSquared(1.5f);
+		1.5f;
 	float MaximumSteeringRateRadiansPerSecond =
-		Metric::RadiansPerSecond(1.8f);
+		1.8f;
 };
 
 class ArcadeCarController

@@ -8,7 +8,10 @@
 class DebugDrivingCourse
 {
 public:
-	explicit DebugDrivingCourse(Slate::Renderer& renderer);
+	DebugDrivingCourse(
+		Slate::Renderer& renderer,
+		const Slate::Mesh3DHandle& boxMesh
+	);
 
 	void Render(Slate::Renderer& renderer) const;
 

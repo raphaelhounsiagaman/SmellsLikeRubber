@@ -8,7 +8,6 @@ public:
 	MainMenuLayer();
 
 	void OnEvent(Slate::Event& event) override;
-	void OnUpdate(float deltaTimeSeconds) override;
 	void OnRender() override;
 
 private:
