@@ -4,66 +4,78 @@
 
 StartLayer::StartLayer()
 {
-	// 1m x 1m x 1m box
-	std::vector<Slate::Vertex3D> boxVertices =
+	// Each face has its own vertices because each face needs a different normal.
+	const std::vector<Slate::Vertex3D> boxVertices
 	{
-		{ { 0.0f, 0.0f, 0.0f } },
-		{ { 0.0f, 0.0f, 1.0f } },
-		{ { 1.0f, 0.0f, 1.0f } },
-		{ { 1.0f, 0.0f, 0.0f } },
-		{ { 0.0f, 1.0f, 0.0f } },
-		{ { 0.0f, 1.0f, 1.0f } },
-		{ { 1.0f, 1.0f, 1.0f } },
-		{ { 1.0f, 1.0f, 0.0f } },
+		// Front
+		{ { -0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+		{ {  0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+		{ {  0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+		{ { -0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f } },
+
+		// Back
+		{ { -0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+		{ {  0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+		{ {  0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+		{ { -0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f } },
+
+		// Top
+		{ { -0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
+		{ {  0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f } },
+		{ {  0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
+		{ { -0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f } },
+
+		// Bottom
+		{ { -0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
+		{ {  0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f } },
+		{ {  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
+		{ { -0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f } },
+
+		// Right
+		{ {  0.5f,  0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
+		{ {  0.5f,  0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
+		{ {  0.5f, -0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f } },
+		{ {  0.5f, -0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f } },
+
+		// Left
+		{ { -0.5f,  0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } },
+		{ { -0.5f,  0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
+		{ { -0.5f, -0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f } },
+		{ { -0.5f, -0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f } }
 	};
 
-	std::vector<unsigned int> boxIndices =
+	const std::vector<unsigned int> boxIndices
 	{
-		// Face down
-		0,2,1,
-		0,3,2,
-
-		// Face Back
-		2,5,1,
-		2,6,5,
-
-		// Face Left
-		1,4,0,
-		1,5,4,
-
-		// Face Right
-		3,6,2,
-		3,7,6,
-
-		// Face Top
-		4,6,7,
-		4,5,6,
-
-		// Face Front
-		0,7,3,
-		0,4,7
+		 0,  1,  2,  0,  2,  3,
+		 4,  6,  5,  4,  7,  6,
+		 8,  9, 10,  8, 10, 11,
+		12, 13, 14, 12, 14, 15,
+		16, 17, 18, 16, 18, 19,
+		20, 21, 22, 20, 22, 23
 	};
 
-	m_Box.Mesh = m_Renderer.CreateMesh3D();
+	m_Box.Mesh = m_Renderer.CreateMesh3D(boxVertices, boxIndices);
+	m_Box.Material = m_Renderer.CreateMaterial(Slate::Color(230, 90, 25));
 
+	// A normalized quaternion that tilts the cube around both X and Y.
+	m_Box.Transform.Rotation =
+		Slate::Quaternion(0.2418448f, 0.2418448f, 0.0f, 0.9396926f);
 
-
-
-
+	m_Camera.Transform.Position = { 0.0f, 0.0f, -3.0f };
 }
 
 void StartLayer::OnEvent(Slate::Event& event)
 {
-	// Hnadle cam movenet
+	// Handle camera movement.
 
 }
 
 void StartLayer::OnRender()
 {
-
-
-
-
-
-
+	m_Renderer.SetCamera3D(m_Camera);
+	m_Renderer.DrawMesh3D(
+		m_Box.Mesh,
+		m_Box.Material,
+		m_Box.Transform
+	);
 }
