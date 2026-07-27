@@ -7,8 +7,6 @@
 
 #include "Slate/Slate.h"
 
-#include <cstdint>
-
 class GameLayer : public Slate::ApplicationLayer
 {
 public:
@@ -32,6 +30,7 @@ private:
 	DebugDrivingCourse m_DebugDrivingCourse;
 
 	Slate::UICanvas m_HudCanvas;
-	Slate::Label* m_PerformanceLabel = nullptr;
-	std::uint64_t m_LastPerformanceSample = 0;
+	Slate::Label* m_FrameRateLabel = nullptr;
+	float m_FpsSampleElapsedSeconds = 0.0f;
+	unsigned int m_FramesInFpsSample = 0;
 };

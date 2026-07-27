@@ -16,8 +16,8 @@ which lives in this repository as a Git submodule.
 - Chase camera with right-mouse orbit and wheel zoom
 - Main menu with a queued transition into the game layer
 - Canvas UI with labels, buttons, images, text, and mouse interaction
-- Independently scheduled update and render stages, both uncapped by default
-- Engine-measured updates-per-second and frames-per-second HUD
+- One update and one render pass per frame
+- Game-owned frames-per-second HUD calculated from update delta time
 - Keyboard, mouse, focus, and resize events
 - Resizable game window and renderer resources
 - Consistent SI gameplay units
@@ -101,17 +101,16 @@ Unit-bearing variables and settings include the unit in their names. This keeps
 tuning values readable without identity conversion helpers or hidden scale
 factors.
 
-The top-right HUD reports completed update cycles as `UPS` and completed
-presentations as `FPS`. SlateEngine measures both stages against wall-clock
-time rather than estimating one value from the other.
+SlateEngine performs one update followed by one render and presentation in
+each loop iteration, so separate UPS and FPS values would describe the same
+cycle. The top-right `FPS` label is calculated by the game from the delta time
+passed to `GameLayer::OnUpdate`.
 
-Updates and rendering are uncapped by default. On supported Windows systems,
-SlateEngine enables DXGI tearing for immediate presentation; unsupported
-systems fall back safely to standard presentation. VSync remains available
-through `Renderer::SetVSyncEnabled(true)`.
-
-`ApplicationLoopSettings` can independently limit either stage when a project
-needs a specific simulation or rendering rate. A limit of zero means uncapped.
+VSync is the engine's only frame-pacing control. It is disabled by default, so
+presentation uses a zero sync interval and does not wait for vertical sync.
+On supported Windows systems, SlateEngine also enables DXGI tearing for this
+immediate mode; unsupported systems fall back safely. Enable synchronization
+with `Renderer::SetVSyncEnabled(true)`.
 
 ## Architecture
 
@@ -139,6 +138,11 @@ WIC dependencies. SlateEngine's current Windows renderer owns those details
 inside its D3D11 backend, leaving the game project ready for future platform
 backends.
 
+Layers submit a complete UI canvas with `Renderer::DrawCanvas`. UI elements
+store state and behavior without receiving a renderer themselves, so command
+generation stays centralized and can later support batching or caching without
+changing game-layer code.
+
 Layer replacement is deferred until the current update and render pass has
 finished. A menu button can therefore request `TransitionTo<GameLayer>()`
 without destroying a layer while it is still handling an event or being
@@ -164,7 +168,7 @@ Useful next milestones include:
 
 1. Asset management and reusable scene resources
 2. Collision queries and lightweight vehicle/world physics
-3. A fixed-step gameplay simulation separated from rendering
+3. Optional physics sub-stepping for more complex vehicle simulation
 4. Track data, checkpoints, lap timing, and a restart flow
 5. Audio, vehicle visuals, and production game UI
 6. Additional SlateEngine platform and rendering backends

@@ -4,6 +4,19 @@
 
 #include <format>
 
+namespace
+{
+	constexpr float FpsSampleDurationSeconds = 0.25f;
+
+	bool IsEitherKeyDown(
+		Slate::KeyCode primary,
+		Slate::KeyCode alternate)
+	{
+		return Slate::Input::IsKeyDown(primary) ||
+			Slate::Input::IsKeyDown(alternate);
+	}
+}
+
 GameLayer::GameLayer()
 	: m_BoxMesh(CreateBoxMesh(m_Renderer)),
 	  m_DebugDrivingCourse(m_Renderer, m_BoxMesh)
@@ -19,18 +32,18 @@ GameLayer::GameLayer()
 	m_Camera.NearPlaneMetres = 0.1f;
 	m_Camera.FarPlaneMetres = 500.0f;
 
-	Slate::TextStyle updateRateStyle;
-	updateRateStyle.FontSizePixels = 18.0f;
-	updateRateStyle.IsBold = true;
-	updateRateStyle.HorizontalAlignment =
+	Slate::TextStyle frameRateStyle;
+	frameRateStyle.FontSizePixels = 18.0f;
+	frameRateStyle.IsBold = true;
+	frameRateStyle.HorizontalAlignment =
 		Slate::HorizontalTextAlignment::Right;
-	updateRateStyle.VerticalAlignment =
+	frameRateStyle.VerticalAlignment =
 		Slate::VerticalTextAlignment::Center;
 
-	m_PerformanceLabel = &m_HudCanvas.AddLabel(
-		L"UPS: -- | FPS: --",
+	m_FrameRateLabel = &m_HudCanvas.AddLabel(
+		L"FPS: --",
 		{},
-		updateRateStyle
+		frameRateStyle
 	);
 	UpdateHudLayout();
 }
@@ -51,33 +64,40 @@ void GameLayer::OnEvent(Slate::Event& event)
 
 void GameLayer::OnUpdate(float deltaTimeSeconds)
 {
-	const Slate::PerformanceStatistics& performance =
-		m_Application.GetPerformanceStatistics();
-	if (performance.SampleNumber != m_LastPerformanceSample)
+	m_FpsSampleElapsedSeconds += deltaTimeSeconds;
+	++m_FramesInFpsSample;
+	if (m_FpsSampleElapsedSeconds >= FpsSampleDurationSeconds)
 	{
-		m_PerformanceLabel->SetText(
-			std::format(
-				L"UPS: {:.0f} | FPS: {:.0f}",
-				performance.UpdatesPerSecond,
-				performance.FramesPerSecond
-			)
+		const float framesPerSecond =
+			static_cast<float>(m_FramesInFpsSample) /
+			m_FpsSampleElapsedSeconds;
+		m_FrameRateLabel->SetText(
+			std::format(L"FPS: {:.0f}", framesPerSecond)
 		);
-		m_LastPerformanceSample = performance.SampleNumber;
+		m_FpsSampleElapsedSeconds = 0.0f;
+		m_FramesInFpsSample = 0;
 	}
 
-	const auto isKeyDown = [](Slate::KeyCode primary, Slate::KeyCode alternate)
-	{
-		return Slate::Input::IsKeyDown(primary) ||
-			Slate::Input::IsKeyDown(alternate);
-	};
-
 	ArcadeCarInput carInput;
-	carInput.Throttle =
-		(isKeyDown(Slate::KeyCode::W, Slate::KeyCode::Up) ? 1.0f : 0.0f) -
-		(isKeyDown(Slate::KeyCode::S, Slate::KeyCode::Down) ? 1.0f : 0.0f);
-	carInput.Steering =
-		(isKeyDown(Slate::KeyCode::D, Slate::KeyCode::Right) ? 1.0f : 0.0f) -
-		(isKeyDown(Slate::KeyCode::A, Slate::KeyCode::Left) ? 1.0f : 0.0f);
+	const float forwardInput =
+		IsEitherKeyDown(Slate::KeyCode::W, Slate::KeyCode::Up)
+			? 1.0f
+			: 0.0f;
+	const float reverseInput =
+		IsEitherKeyDown(Slate::KeyCode::S, Slate::KeyCode::Down)
+			? 1.0f
+			: 0.0f;
+	const float rightInput =
+		IsEitherKeyDown(Slate::KeyCode::D, Slate::KeyCode::Right)
+			? 1.0f
+			: 0.0f;
+	const float leftInput =
+		IsEitherKeyDown(Slate::KeyCode::A, Slate::KeyCode::Left)
+			? 1.0f
+			: 0.0f;
+
+	carInput.Throttle = forwardInput - reverseInput;
+	carInput.Steering = rightInput - leftInput;
 
 	m_CarController.Update(
 		m_Car.Transform,
@@ -110,7 +130,7 @@ void GameLayer::OnRender()
 		m_Car.Material,
 		m_Car.Transform
 	);
-	m_HudCanvas.Render(m_Renderer);
+	m_Renderer.DrawCanvas(m_HudCanvas);
 }
 
 void GameLayer::UpdateHudLayout()
@@ -119,7 +139,7 @@ void GameLayer::UpdateHudLayout()
 		static_cast<float>(
 			m_Application.GetWindow().GetWindowSize().X
 		);
-	m_PerformanceLabel->SetBounds(
-		{ viewportWidthPixels - 296.0f, 12.0f, 280.0f, 32.0f }
+	m_FrameRateLabel->SetBounds(
+		{ viewportWidthPixels - 176.0f, 12.0f, 160.0f, 32.0f }
 	);
 }

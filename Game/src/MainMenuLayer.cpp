@@ -58,7 +58,7 @@ void MainMenuLayer::OnEvent(Slate::Event& event)
 
 void MainMenuLayer::OnRender()
 {
-	m_Canvas.Render(m_Renderer);
+	m_Renderer.DrawCanvas(m_Canvas);
 }
 
 void MainMenuLayer::UpdateLayout()
