@@ -117,7 +117,7 @@ void GameLayer::UpdateHudLayout()
 {
 	const float viewportWidthPixels =
 		static_cast<float>(
-			m_Application.GetWindow().GetClientWidthPixels()
+			m_Application.GetWindow().GetWindowSize().X
 		);
 	m_PerformanceLabel->SetBounds(
 		{ viewportWidthPixels - 296.0f, 12.0f, 280.0f, 32.0f }

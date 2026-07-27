@@ -18,15 +18,15 @@ public:
 	}
 
 private:
-	Slate::Color m_ClearColor{ 60, 0, 160, 255 };
+
+	Slate::Color m_ClearColor{ 12, 0, 36 };
 };
 
 std::unique_ptr<Slate::Application> Slate::CreateApplication(
 	Slate::WindowInformation windowInfo)
 {
 	windowInfo.Name = L"Smells Like Rubber";
-	windowInfo.WidthPixels = 1280;
-	windowInfo.HeightPixels = 720;
+	windowInfo.WindowSize = { 1280, 720 };
 
 	return std::make_unique<SmellsLikeRubberApplication>(windowInfo);
 }

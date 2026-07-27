@@ -65,11 +65,11 @@ void MainMenuLayer::UpdateLayout()
 {
 	const float viewportWidth =
 		static_cast<float>(
-			m_Application.GetWindow().GetClientWidthPixels()
+			m_Application.GetWindow().GetWindowSize().X
 		);
 	const float viewportHeight =
 		static_cast<float>(
-			m_Application.GetWindow().GetClientHeightPixels()
+			m_Application.GetWindow().GetWindowSize().Y
 		);
 	const float centreX = viewportWidth * 0.5f;
 	const float centreY = viewportHeight * 0.5f;
